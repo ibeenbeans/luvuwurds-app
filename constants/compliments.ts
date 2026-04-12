@@ -43,4 +43,4 @@ export const compliments: Compliment[] = [
   { text: "The way you care for people — it's one of the things I admire most.", category: "character" },
 ];
 
-export const CALIBRATION_PHRASE = "I love you and everything about you means the world to me.";
+export const CALIBRATION_PHRASE = `I love you — and I mean that in the quiet, everyday way, not just when it's easy to say. The way you move through a room, the way you laugh, the way you handle hard things without making a big deal of it — I notice all of it. I always have. You make ordinary days feel like something worth holding onto. I'm proud to be your husband, and I'd choose you again, every single time, without hesitation.`;

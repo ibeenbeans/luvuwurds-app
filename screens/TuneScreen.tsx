@@ -1,20 +1,47 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Slider from '@react-native-community/slider';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
 import { CALIBRATION_PHRASE } from '../constants/compliments';
 import { BG, CARD_BG, BORDER, TEXT_MUTED } from '../constants/colors';
 import { SpeakIcon } from '../components/Icons';
 import { VoiceContext } from '../hooks/VoiceContext';
+import { ElevenLabsSettings, setVoiceSettings, getVoiceSettings } from '../services/elevenlabs';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Tune'>;
 
 const ACCENT = '#e8c4a0';
 
+function SliderRow({ label, hint, value, min, max, onChange }: {
+  label: string; hint: string; value: number;
+  min: number; max: number; onChange: (v: number) => void;
+}) {
+  return (
+    <View style={styles.sliderBlock}>
+      <View style={styles.sliderRow}>
+        <Text style={styles.sliderLabel}>{label}</Text>
+        <Text style={[styles.sliderValue, { color: ACCENT }]}>{value.toFixed(2)}</Text>
+      </View>
+      <Text style={styles.sliderHint}>{hint}</Text>
+      <input
+        type="range" min={min} max={max} step={0.05} value={value}
+        onChange={e => onChange(parseFloat(e.target.value))}
+        style={{ width: '100%', accentColor: ACCENT, cursor: 'pointer', marginTop: 8 } as any}
+      />
+    </View>
+  );
+}
+
 export default function TuneScreen({ navigation }: Props) {
-  const { speaking, voiceParams, setVoiceParams, speak } = useContext(VoiceContext);
+  const { speaking, speak } = useContext(VoiceContext);
+  const [settings, setSettings] = useState<ElevenLabsSettings>(getVoiceSettings());
+
+  const update = (key: keyof ElevenLabsSettings, value: number) => {
+    const next = { ...settings, [key]: value };
+    setSettings(next);
+    setVoiceSettings(next);
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: BG }]}>
@@ -27,38 +54,26 @@ export default function TuneScreen({ navigation }: Props) {
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.card}>
-          {/* Pitch */}
-          <View style={styles.sliderRow}>
-            <Text style={styles.sliderLabel}>PITCH</Text>
-            <Text style={[styles.sliderValue, { color: ACCENT }]}>{voiceParams.pitch}</Text>
-          </View>
-          <Slider
-            style={styles.slider}
-            minimumValue={0.5}
-            maximumValue={1.5}
-            step={0.05}
-            value={voiceParams.pitch}
-            onValueChange={v => setVoiceParams(p => ({ ...p, pitch: parseFloat(v.toFixed(2)) }))}
-            minimumTrackTintColor={ACCENT}
-            maximumTrackTintColor={BORDER}
-            thumbTintColor={ACCENT}
+          <SliderRow
+            label="STABILITY"
+            hint="Higher = more consistent. Lower = more expressive."
+            value={settings.stability}
+            min={0} max={1}
+            onChange={v => update('stability', v)}
           />
-
-          {/* Rate */}
-          <View style={[styles.sliderRow, { marginTop: 24 }]}>
-            <Text style={styles.sliderLabel}>SPEAKING RATE</Text>
-            <Text style={[styles.sliderValue, { color: ACCENT }]}>{voiceParams.rate}</Text>
-          </View>
-          <Slider
-            style={styles.slider}
-            minimumValue={0.5}
-            maximumValue={1.2}
-            step={0.05}
-            value={voiceParams.rate}
-            onValueChange={v => setVoiceParams(p => ({ ...p, rate: parseFloat(v.toFixed(2)) }))}
-            minimumTrackTintColor={ACCENT}
-            maximumTrackTintColor={BORDER}
-            thumbTintColor={ACCENT}
+          <SliderRow
+            label="SIMILARITY"
+            hint="How closely it matches your recorded voice."
+            value={settings.similarity_boost}
+            min={0} max={1}
+            onChange={v => update('similarity_boost', v)}
+          />
+          <SliderRow
+            label="STYLE"
+            hint="How much natural expression and emotion."
+            value={settings.style}
+            min={0} max={1}
+            onChange={v => update('style', v)}
           />
         </View>
 
@@ -88,10 +103,11 @@ const styles = StyleSheet.create({
   backBtnText:    { color: TEXT_MUTED, fontSize: 12, fontFamily: 'Georgia', letterSpacing: 1 },
   content:        { paddingHorizontal: 24, paddingBottom: 40 },
   card:           { backgroundColor: CARD_BG, borderWidth: 1, borderColor: BORDER, borderRadius: 16, padding: 28, marginBottom: 20 },
-  sliderRow:      { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
+  sliderBlock:    { marginBottom: 24 },
+  sliderRow:      { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
   sliderLabel:    { color: TEXT_MUTED, fontSize: 12, letterSpacing: 1.5, fontFamily: 'Georgia' },
   sliderValue:    { fontSize: 13, fontWeight: 'bold', fontFamily: 'Georgia' },
-  slider:         { width: '100%', height: 40 },
+  sliderHint:     { color: '#3a2e24', fontSize: 11, fontFamily: 'Georgia', fontStyle: 'italic' },
   previewBtn:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: `${ACCENT}cc`, padding: 16, borderRadius: 12, marginBottom: 12 },
   previewBtnText: { color: '#0f0d0b', fontSize: 14, letterSpacing: 2, fontFamily: 'Georgia', fontWeight: 'bold' },
   saveBtn:        { backgroundColor: CARD_BG, borderWidth: 1, borderColor: BORDER, padding: 14, borderRadius: 12, alignItems: 'center' },
