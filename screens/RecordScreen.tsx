@@ -1,6 +1,6 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
 import {
-  View, Text, TouchableOpacity, TextInput,
+  View, Text, TouchableOpacity,
   StyleSheet, Alert, ActivityIndicator, ScrollView, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -35,11 +35,8 @@ export default function RecordScreen({ navigation, route }: Props) {
   const idx = (route.params as any)?.complimentIndex ?? 0;
   const original = compliments[idx]?.text ?? '';
 
-  const [text, setText]           = useState(original);
-  const [savedText, setSavedText] = useState(original);
-  const [textSaved, setTextSaved] = useState(false);
-  const [editing, setEditing]     = useState(false);
-  const [stage, setStage]         = useState<Stage>('compose');
+  const [text, setText]   = useState(original);
+  const [stage, setStage] = useState<Stage>('compose');
   const [recordingTime, setTime]  = useState(0);
   const [audioUri, setAudioUri]   = useState<string | null>(null);
   const [audioB64, setAudioB64]   = useState<string | null>(null);
@@ -54,30 +51,12 @@ export default function RecordScreen({ navigation, route }: Props) {
   const chunksRef    = useRef<Blob[]>([]);
   const timerRef     = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // ── Load saved text for this compliment ───────────────────────────────────
+  // ── Load saved (possibly edited) text for this compliment ────────────────
   useEffect(() => {
     AsyncStorage.getItem(`compliment_text_${idx}`).then(saved => {
-      if (saved) { setText(saved); setSavedText(saved); setTextSaved(true); }
+      if (saved) setText(saved);
     });
   }, [idx]);
-
-  const handleTextChange = (val: string) => {
-    setText(val);
-    setTextSaved(false); // mark unsaved when user types
-  };
-
-  const saveText = async () => {
-    await AsyncStorage.setItem(`compliment_text_${idx}`, text);
-    setSavedText(text);
-    setTextSaved(true);
-  };
-
-  const resetToOriginal = () => {
-    setText(original);
-    setSavedText(original);
-    setTextSaved(false);
-    AsyncStorage.removeItem(`compliment_text_${idx}`);
-  };
 
   // ── Recording ─────────────────────────────────────────────────────────────
   const startRecording = async () => {
@@ -250,72 +229,13 @@ export default function RecordScreen({ navigation, route }: Props) {
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
-        {/* ── COMPOSE stage ── */}
+        {/* ── COMPOSE / RECORDING stage — read-only words ── */}
         {(stage === 'compose' || stage === 'recording') && (
           <View style={styles.card}>
-            <View style={styles.labelRow}>
-              <Text style={styles.label}>YOUR WORDS</Text>
-              <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-                {text !== original && (
-                  <TouchableOpacity onPress={resetToOriginal}>
-                    <Text style={styles.resetTxt}>Reset</Text>
-                  </TouchableOpacity>
-                )}
-                {stage === 'compose' && !editing && (
-                  <TouchableOpacity
-                    style={styles.pencilBtn}
-                    onPress={() => setEditing(true)}
-                    activeOpacity={0.75}
-                  >
-                    <Text style={styles.pencilIcon}>✏️</Text>
-                    <Text style={styles.pencilTxt}>Edit</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            </View>
-
-            {/* Read-only display */}
-            {(!editing || stage === 'recording') && (
-              <Text style={styles.textDisplay}>"{text}"</Text>
-            )}
-
-            {/* Editable input — only in compose+editing mode */}
-            {editing && stage === 'compose' && (
-              <>
-                <TextInput
-                  style={styles.textInputEditable}
-                  value={text}
-                  onChangeText={handleTextChange}
-                  multiline
-                  scrollEnabled={false}
-                  autoFocus
-                  placeholder="Write your compliment here…"
-                  placeholderTextColor="#7a6450"
-                />
-                <View style={styles.saveTextRow}>
-                  <Text style={styles.hint}>
-                    {textSaved
-                      ? `✓ Saved`
-                      : 'Tap Save Text when done editing.'}
-                  </Text>
-                  <TouchableOpacity
-                    style={[styles.saveTextBtn, textSaved && { opacity: 0.5 }]}
-                    onPress={async () => { await saveText(); setEditing(false); }}
-                    disabled={textSaved}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.saveTextBtnTxt}>
-                      {textSaved ? '✓ Saved' : 'Save Text'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
-
-            {!editing && stage === 'compose' && (
-              <Text style={styles.hint}>
-                {textSaved ? '✓ Your edits saved' : 'Tap ✏️ Edit to customise this compliment.'}
-              </Text>
+            <Text style={styles.label}>YOUR WORDS</Text>
+            <Text style={styles.textDisplay}>"{text}"</Text>
+            {stage === 'compose' && (
+              <Text style={styles.hint}>Read these words as you record.</Text>
             )}
           </View>
         )}
@@ -432,18 +352,9 @@ const styles = StyleSheet.create({
   backTxt:        { color: TEXT_MUTED, fontSize: 12, fontFamily: 'Georgia' },
   content:        { paddingHorizontal: 24, paddingBottom: 60, gap: 24 },
   card:           { backgroundColor: CARD_BG, borderWidth: 1, borderColor: BORDER, borderRadius: 16, padding: 24 },
-  labelRow:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  label:          { color: TEXT_MUTED, fontSize: 11, letterSpacing: 2.5, fontFamily: 'Georgia' },
-  resetTxt:       { color: '#b89f84', fontSize: 11, fontFamily: 'Georgia', textDecorationLine: 'underline' },
-  textDisplay:       { color: TEXT_PRIMARY, fontSize: 17, fontStyle: 'italic', fontFamily: 'Georgia', lineHeight: 28, marginBottom: 8 },
-  textInputEditable: { color: TEXT_PRIMARY, fontSize: 17, fontStyle: 'italic', fontFamily: 'Georgia', lineHeight: 28, borderWidth: 1, borderColor: `${ACCENT}60`, borderRadius: 10, padding: 14, backgroundColor: '#15110d', marginBottom: 12 },
-  pencilBtn:         { flexDirection: 'row', alignItems: 'center', gap: 4, borderWidth: 1, borderColor: `${ACCENT}50`, borderRadius: 16, paddingHorizontal: 10, paddingVertical: 4 },
-  pencilIcon:        { fontSize: 13 },
-  pencilTxt:         { color: ACCENT, fontSize: 11, fontFamily: 'Georgia', letterSpacing: 1 },
-  saveTextRow:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 4 },
-  saveTextBtn:       { backgroundColor: `${ACCENT}cc`, paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8 },
-  saveTextBtnTxt:    { color: '#0f0d0b', fontSize: 12, fontFamily: 'Georgia', fontWeight: 'bold', letterSpacing: 1 },
-  hint:              { color: '#7a6450', fontSize: 11, fontFamily: 'Georgia', fontStyle: 'italic', flex: 1 },
+  label:       { color: TEXT_MUTED, fontSize: 11, letterSpacing: 2.5, fontFamily: 'Georgia', marginBottom: 10 },
+  textDisplay: { color: TEXT_PRIMARY, fontSize: 17, fontStyle: 'italic', fontFamily: 'Georgia', lineHeight: 28, marginBottom: 8 },
+  hint:        { color: '#b89f84', fontSize: 11, fontFamily: 'Georgia', fontStyle: 'italic' },
   reviewText:     { color: TEXT_PRIMARY, fontSize: 17, fontStyle: 'italic', fontFamily: 'Georgia', lineHeight: 28, marginTop: 4 },
   centeredSection:{ alignItems: 'center', gap: 16, paddingVertical: 8 },
   micBtn:         { width: 120, height: 120, borderRadius: 60, backgroundColor: `${ACCENT}cc`, alignItems: 'center', justifyContent: 'center', gap: 8 },
