@@ -15,9 +15,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'HisSetup'>;
 
 const BG     = '#0f0d0b';
 const ACCENT = '#e8c4a0';
-const MUTED  = '#5a4a3a';
-const CARD   = '#18140f';
-const BORDER = '#2a2520';
+const MUTED  = '#b89f84';
+const CARD   = '#1e1a14';
+const BORDER = '#3d3228';
 
 function generateCode(): string {
   const words = ['ROSE', 'MOON', 'DAWN', 'STAR', 'GOLD', 'JADE', 'IRIS', 'LARK', 'SAGE', 'FERN'];

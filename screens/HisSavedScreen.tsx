@@ -200,10 +200,10 @@ const styles = StyleSheet.create({
   sendBtn:      { flex: 1, backgroundColor: `${ACCENT}cc`, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 10, alignItems: 'center' },
   sendBtnTxt:   { color: '#0f0d0b', fontSize: 12, letterSpacing: 1, fontFamily: 'Georgia', fontWeight: 'bold' },
   deleteBtn:    { borderWidth: 1, borderColor: BORDER, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 10 },
-  deleteBtnTxt: { color: '#5a4a3a', fontSize: 13 },
+  deleteBtnTxt: { color: '#b89f84', fontSize: 13 },
   empty:        { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 40, gap: 16 },
   emptyTitle:   { color: TEXT_MUTED, fontSize: 18, fontStyle: 'italic', fontFamily: 'Georgia' },
-  emptyHint:    { color: '#3a2e24', fontSize: 13, fontFamily: 'Georgia', textAlign: 'center', lineHeight: 22 },
+  emptyHint:    { color: '#7a6450', fontSize: 13, fontFamily: 'Georgia', textAlign: 'center', lineHeight: 22 },
   recordBtn:    { backgroundColor: `${ACCENT}cc`, paddingVertical: 14, paddingHorizontal: 28, borderRadius: 12, marginTop: 8 },
   recordBtnTxt: { color: '#0f0d0b', fontSize: 14, letterSpacing: 1.5, fontFamily: 'Georgia', fontWeight: 'bold' },
 });

@@ -14,9 +14,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'HerSetup'>;
 
 const BG     = '#0f0d0b';
 const ACCENT = '#d4a0c0';
-const MUTED  = '#5a4a3a';
-const CARD   = '#18140f';
-const BORDER = '#2a2520';
+const MUTED  = '#b89f84';
+const CARD   = '#1e1a14';
+const BORDER = '#3d3228';
 
 export default function HerSetupScreen({ navigation }: Props) {
   const { saveAppState } = useContext(AppStateContext);
@@ -79,7 +79,7 @@ export default function HerSetupScreen({ navigation }: Props) {
             value={code}
             onChangeText={t => setCode(t.toUpperCase())}
             placeholder="e.g. ROSE47"
-            placeholderTextColor="#3a2e24"
+            placeholderTextColor="#7a6450"
             autoCapitalize="characters"
             autoCorrect={false}
             maxLength={8}
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   content:    { flex: 1, paddingHorizontal: 24, paddingTop: 20 },
   card:       { backgroundColor: CARD, borderWidth: 1, borderColor: `${ACCENT}30`, borderRadius: 16, padding: 24, marginBottom: 24 },
   cardLabel:  { color: MUTED, fontSize: 11, letterSpacing: 3, fontFamily: 'Georgia', marginBottom: 10 },
-  cardHint:   { color: '#7a6a78', fontSize: 14, fontFamily: 'Georgia', lineHeight: 22 },
+  cardHint:   { color: '#b89f84', fontSize: 14, fontFamily: 'Georgia', lineHeight: 22 },
   input:      {
     backgroundColor: CARD, borderWidth: 1, borderColor: `${ACCENT}40`,
     borderRadius: 14, padding: 20, color: ACCENT,

@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   sliderRow:      { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
   sliderLabel:    { color: TEXT_MUTED, fontSize: 12, letterSpacing: 1.5, fontFamily: 'Georgia' },
   sliderValue:    { fontSize: 13, fontWeight: 'bold', fontFamily: 'Georgia' },
-  sliderHint:     { color: '#3a2e24', fontSize: 11, fontFamily: 'Georgia', fontStyle: 'italic' },
+  sliderHint:     { color: '#7a6450', fontSize: 11, fontFamily: 'Georgia', fontStyle: 'italic' },
   previewBtn:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, backgroundColor: `${ACCENT}cc`, padding: 16, borderRadius: 12, marginBottom: 12 },
   previewBtnText: { color: '#0f0d0b', fontSize: 14, letterSpacing: 2, fontFamily: 'Georgia', fontWeight: 'bold' },
   saveBtn:        { backgroundColor: CARD_BG, borderWidth: 1, borderColor: BORDER, padding: 14, borderRadius: 12, alignItems: 'center' },

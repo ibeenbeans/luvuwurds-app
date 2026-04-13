@@ -13,9 +13,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'HerSaved'>;
 
 const BG     = '#0f0d0b';
 const ACCENT = '#d4a0c0';
-const MUTED  = '#5a4a3a';
-const CARD   = '#18140f';
-const BORDER = '#2a2520';
+const MUTED  = '#b89f84';
+const CARD   = '#1e1a14';
+const BORDER = '#3d3228';
 
 const STORAGE_KEY = 'her_saved_recordings';
 
@@ -135,5 +135,5 @@ const styles = StyleSheet.create({
   removeBtnTxt: { color: MUTED, fontSize: 12, letterSpacing: 1, fontFamily: 'Georgia' },
   empty:        { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 40 },
   emptyTxt:     { color: MUTED, fontSize: 16, fontStyle: 'italic', fontFamily: 'Georgia', marginBottom: 10 },
-  emptyHint:    { color: '#3a2e24', fontSize: 13, fontFamily: 'Georgia', textAlign: 'center', lineHeight: 20 },
+  emptyHint:    { color: '#7a6450', fontSize: 13, fontFamily: 'Georgia', textAlign: 'center', lineHeight: 20 },
 });

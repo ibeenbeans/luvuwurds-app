@@ -16,9 +16,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'HerHome'>;
 
 const BG     = '#0f0d0b';
 const ACCENT = '#d4a0c0';
-const MUTED  = '#5a4a3a';
-const CARD   = '#18140f';
-const BORDER = '#2a2520';
+const MUTED  = '#b89f84';
+const CARD   = '#1e1a14';
+const BORDER = '#3d3228';
 
 const REACTIONS = ['1','2','3','4','5','6','7','8','9','10'];
 
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   playBtnTxt:     { color: '#0f0d0b', fontSize: 14, letterSpacing: 1.5, fontFamily: 'Georgia', fontWeight: 'bold' },
   reactLabel:     { color: MUTED, fontSize: 12, fontFamily: 'Georgia', textAlign: 'center', marginBottom: 12 },
   reactions:      { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
-  reactBtn:       { backgroundColor: '#18140f', borderWidth: 1, borderColor: `${ACCENT}30`, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 },
+  reactBtn:       { backgroundColor: '#1e1a14', borderWidth: 1, borderColor: `${ACCENT}30`, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 },
   reactTxt:       { color: ACCENT, fontSize: 14, fontFamily: 'Georgia' },
   reactedCard:    { backgroundColor: CARD, borderWidth: 1, borderColor: `${ACCENT}20`, borderRadius: 14, padding: 20, alignItems: 'center', marginBottom: 24 },
   reactedTxt:     { color: ACCENT, fontSize: 16, fontFamily: 'Georgia', fontStyle: 'italic' },
