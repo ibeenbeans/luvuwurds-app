@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Audio } from 'expo-av';
+import { Platform } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
 import { fetchMessages, markDelivered, sendMessage } from '../services/supabase';
@@ -79,18 +80,24 @@ export default function HerHomeScreen({ navigation }: Props) {
     if (!pendingMsg || playing) return;
     setPlaying(true);
     try {
-      const base64 = pendingMsg.payload.audio_base64;
-      // Write base64 to a temp file and play
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: `data:audio/m4a;base64,${base64}` },
-        { shouldPlay: true }
-      );
-      sound.setOnPlaybackStatusUpdate(s => {
-        if (s.isLoaded && s.didJustFinish) {
-          setPlaying(false);
-          sound.unloadAsync();
-        }
-      });
+      const base64    = pendingMsg.payload.audio_base64;
+      const audioType = pendingMsg.payload.audio_type ?? 'audio/webm';
+      const dataUri   = `data:${audioType};base64,${base64}`;
+
+      if (Platform.OS === 'web') {
+        const audio = new window.Audio(dataUri);
+        audio.onended = () => setPlaying(false);
+        audio.onerror = () => setPlaying(false);
+        audio.play();
+      } else {
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: dataUri },
+          { shouldPlay: true }
+        );
+        sound.setOnPlaybackStatusUpdate(s => {
+          if (s.isLoaded && s.didJustFinish) { setPlaying(false); sound.unloadAsync(); }
+        });
+      }
     } catch (e) {
       setPlaying(false);
       console.error(e);
