@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 const RECORDINGS_DIR = `${FileSystem.documentDirectory}recordings/`;
 
@@ -29,5 +29,5 @@ export async function deleteRecording(uri: string) {
 
 /** Read a recording as a base64 string (for upload). */
 export async function readAsBase64(uri: string): Promise<string> {
-  return FileSystem.readAsStringAsync(uri, { encoding: 'base64' as any });
+  return FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
 }
