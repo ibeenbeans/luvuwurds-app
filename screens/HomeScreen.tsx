@@ -15,12 +15,19 @@ import { AppStateContext } from '../hooks/AppStateContext';
 import { fetchMessages, markDelivered } from '../services/supabase';
 import { getSavedRecordings } from '../services/savedRecordings';
 
+declare const __DEV__: boolean;
+
 type Props = NativeStackScreenProps<RootStackParamList, 'HisHome'>;
 
 const ACCENT = '#e8c4a0';
 
 export default function HomeScreen({ navigation }: Props) {
-  const { appState } = useContext(AppStateContext);
+  const { appState, clearAppState } = useContext(AppStateContext);
+
+  const resetForTesting = async () => {
+    await clearAppState();
+    navigation.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
+  };
   const [currentIdx, setCurrentIdx]   = useState<number>(0);
   const [current, setCurrent]         = useState<Compliment | null>(null);
   const [favorites, setFavorites]     = useState<Compliment[]>([]);
@@ -137,6 +144,13 @@ export default function HomeScreen({ navigation }: Props) {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* DEV ONLY: reset role so you can test Her side on the same phone */}
+      {__DEV__ && (
+        <TouchableOpacity style={styles.devBtn} onPress={resetForTesting}>
+          <Text style={styles.devBtnTxt}>⚙ Switch Role</Text>
+        </TouchableOpacity>
+      )}
 
       {/* Her request banner */}
       {hasRequest && (
@@ -261,6 +275,8 @@ const styles = StyleSheet.create({
   savedBtnText:      { color: ACCENT, fontSize: 12, letterSpacing: 1.5, fontFamily: 'Georgia' },
   favBtn:            { borderWidth: 1, borderColor: BORDER, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8 },
   favBtnText:        { color: '#b89f84', fontSize: 12, letterSpacing: 1.5, fontFamily: 'Georgia' },
+  devBtn:            { alignSelf: 'center', marginBottom: 8, borderWidth: 1, borderColor: '#444', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 5 },
+  devBtnTxt:         { color: '#666', fontSize: 11, fontFamily: 'Georgia' },
   requestBanner:     { backgroundColor: '#2a1a1a', borderWidth: 1, borderColor: '#e8a0a030', borderRadius: 12, padding: 14, marginBottom: 14, alignItems: 'center' },
   requestBannerTxt:  { color: '#e8c4a0', fontSize: 13, fontFamily: 'Georgia', fontStyle: 'italic', letterSpacing: 0.5 },
   scrollContent:     { gap: 14, paddingBottom: 40 },
