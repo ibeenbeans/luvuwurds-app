@@ -17,6 +17,7 @@ import FavoritesScreen   from './screens/FavoritesScreen';
 import RecordScreen      from './screens/RecordScreen';
 import HerHomeScreen     from './screens/HerHomeScreen';
 import HerSavedScreen    from './screens/HerSavedScreen';
+import HisSavedScreen    from './screens/HisSavedScreen';
 
 export type RootStackParamList = {
   Onboarding: undefined;
@@ -27,6 +28,7 @@ export type RootStackParamList = {
   Record:     { complimentIndex: number };
   HerHome:    undefined;
   HerSaved:   undefined;
+  HisSaved:   undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -65,6 +67,7 @@ export default function App() {
               <Stack.Screen name="Record"      component={RecordScreen} />
               <Stack.Screen name="HerHome"     component={HerHomeScreen} />
               <Stack.Screen name="HerSaved"    component={HerSavedScreen} />
+              <Stack.Screen name="HisSaved"    component={HisSavedScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </AppStateContext.Provider>

@@ -12,8 +12,11 @@ import { categoryColors, BG, CARD_BG, BORDER, TEXT_PRIMARY, TEXT_MUTED, TEXT_DIM
 import { HeartIcon, RefreshIcon } from '../components/Icons';
 import { AppStateContext } from '../hooks/AppStateContext';
 import { fetchMessages, markDelivered } from '../services/supabase';
+import { getSavedRecordings } from '../services/savedRecordings';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'HisHome'>;
+
+const ACCENT = '#e8c4a0';
 
 export default function HomeScreen({ navigation }: Props) {
   const { appState } = useContext(AppStateContext);
@@ -21,6 +24,7 @@ export default function HomeScreen({ navigation }: Props) {
   const [favorites, setFavorites]   = useState<Compliment[]>([]);
   const [hasRequest, setHasRequest] = useState(false);
   const [requestMsgId, setRequestMsgId] = useState<string | null>(null);
+  const [savedCount, setSavedCount] = useState(0);
   const fadeAnim = useState(new Animated.Value(1))[0];
 
   useEffect(() => { pickRandom(); }, []);
@@ -34,6 +38,7 @@ export default function HomeScreen({ navigation }: Props) {
         if (req) { setHasRequest(true); setRequestMsgId(req.id); }
         else { setHasRequest(false); setRequestMsgId(null); }
       });
+      getSavedRecordings().then(recs => setSavedCount(recs.length));
     }, [appState.coupleId])
   );
 
@@ -75,12 +80,22 @@ export default function HomeScreen({ navigation }: Props) {
           <Text style={styles.headerSub}>INSPIRATION</Text>
           <Text style={[styles.headerTitle, { color: accent }]}>Luvuwurds</Text>
         </View>
-        <TouchableOpacity
-          style={styles.favBtn}
-          onPress={() => navigation.navigate('Favorites', { favorites, setFavorites })}
-        >
-          <Text style={styles.favBtnText}>♥ {favorites.length}</Text>
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          {savedCount > 0 && (
+            <TouchableOpacity
+              style={styles.savedBtn}
+              onPress={() => navigation.navigate('HisSaved')}
+            >
+              <Text style={styles.savedBtnText}>🎙 {savedCount}</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={styles.favBtn}
+            onPress={() => navigation.navigate('Favorites', { favorites, setFavorites })}
+          >
+            <Text style={styles.favBtnText}>♥ {favorites.length}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Her request banner */}
@@ -133,6 +148,9 @@ const styles = StyleSheet.create({
   header:            { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, paddingBottom: 12 },
   headerSub:         { color: '#7a6a58', fontSize: 11, letterSpacing: 3, fontFamily: 'Georgia' },
   headerTitle:       { fontSize: 24, fontStyle: 'italic', fontFamily: 'Georgia' },
+  headerRight:       { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  savedBtn:          { borderWidth: 1, borderColor: `${ACCENT}50`, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8 },
+  savedBtnText:      { color: ACCENT, fontSize: 12, letterSpacing: 1.5, fontFamily: 'Georgia' },
   favBtn:            { borderWidth: 1, borderColor: BORDER, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8 },
   favBtnText:        { color: '#5a4a3a', fontSize: 12, letterSpacing: 1.5, fontFamily: 'Georgia' },
   requestBanner:     { backgroundColor: '#2a1a1a', borderWidth: 1, borderColor: '#e8a0a030', borderRadius: 12, padding: 14, marginBottom: 14, alignItems: 'center' },

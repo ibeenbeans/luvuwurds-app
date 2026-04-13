@@ -12,6 +12,7 @@ import { BG, CARD_BG, BORDER, TEXT_PRIMARY, TEXT_MUTED } from '../constants/colo
 import { compliments } from '../constants/compliments';
 import { sendMessage } from '../services/supabase';
 import { sendPush } from '../services/notifications';
+import { saveRecordingLocally } from '../services/savedRecordings';
 import { AppStateContext } from '../hooks/AppStateContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Record'>;
@@ -40,6 +41,7 @@ export default function RecordScreen({ navigation, route }: Props) {
   const [audioUri, setAudioUri] = useState<string | null>(null);
   const [audioB64, setAudioB64] = useState<string | null>(null);
   const [playing, setPlaying]   = useState(false);
+  const [saving, setSaving]     = useState(false);
 
   // Native refs
   const nativeRecRef = useRef<Audio.Recording | null>(null);
@@ -151,6 +153,34 @@ export default function RecordScreen({ navigation, route }: Props) {
       sound.setOnPlaybackStatusUpdate(s => {
         if (s.isLoaded && s.didJustFinish) { setPlaying(false); sound.unloadAsync(); }
       });
+    }
+  };
+
+  // ── Save for later ───────────────────────────────────────────────────────
+  const saveForLater = async () => {
+    if (!audioUri) return;
+    setSaving(true);
+    try {
+      let b64 = audioB64;
+      if (Platform.OS !== 'web' && !b64) {
+        const { readAsBase64 } = await import('../services/storage');
+        b64 = await readAsBase64(audioUri);
+      }
+      if (!b64) throw new Error('No audio data');
+      await saveRecordingLocally({
+        text,
+        audio_base64: b64,
+        audio_type: Platform.OS === 'web' ? 'audio/webm' : 'audio/m4a',
+        compliment_index: idx,
+      });
+      Alert.alert('Saved ✓', 'Find it in My Recordings whenever you\'re ready to send.', [
+        { text: 'Record another', onPress: () => { setStage('compose'); setAudioUri(null); setAudioB64(null); } },
+        { text: 'Done', onPress: () => navigation.goBack() },
+      ]);
+    } catch {
+      Alert.alert('Save failed', 'Something went wrong. Try again.');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -311,13 +341,26 @@ export default function RecordScreen({ navigation, route }: Props) {
               <Text style={styles.tryAgainTxt}>🎙  Try again</Text>
             </TouchableOpacity>
 
-            {/* Send */}
+            {/* Save for later */}
+            <TouchableOpacity
+              style={[styles.saveBtn, saving && { opacity: 0.6 }]}
+              onPress={saveForLater}
+              disabled={saving}
+              activeOpacity={0.85}
+            >
+              {saving
+                ? <ActivityIndicator color={ACCENT} size="small" />
+                : <Text style={styles.saveBtnTxt}>Save for Later</Text>
+              }
+            </TouchableOpacity>
+
+            {/* Send now */}
             <TouchableOpacity
               style={styles.sendBtn}
               onPress={send}
               activeOpacity={0.85}
             >
-              <Text style={styles.sendBtnTxt}>Send to Her ♡</Text>
+              <Text style={styles.sendBtnTxt}>Send to Her Now ♡</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -360,6 +403,8 @@ const styles = StyleSheet.create({
   playBtnTxt:     { color: ACCENT, fontSize: 14, fontFamily: 'Georgia', letterSpacing: 1 },
   tryAgainBtn:    { backgroundColor: CARD_BG, borderWidth: 1, borderColor: BORDER, padding: 16, borderRadius: 12, alignItems: 'center' },
   tryAgainTxt:    { color: TEXT_MUTED, fontSize: 14, fontFamily: 'Georgia', letterSpacing: 1 },
+  saveBtn:        { backgroundColor: CARD_BG, borderWidth: 1, borderColor: `${ACCENT}50`, padding: 16, borderRadius: 12, alignItems: 'center' },
+  saveBtnTxt:     { color: ACCENT, fontSize: 14, fontFamily: 'Georgia', letterSpacing: 1 },
   sendBtn:        { backgroundColor: `${ACCENT}cc`, padding: 20, borderRadius: 14, alignItems: 'center' },
   sendBtnTxt:     { color: '#0f0d0b', fontSize: 15, letterSpacing: 2, fontFamily: 'Georgia', fontWeight: 'bold' },
   sendingTxt:     { color: TEXT_MUTED, fontSize: 14, fontFamily: 'Georgia', fontStyle: 'italic', marginTop: 12 },
