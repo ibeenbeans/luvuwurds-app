@@ -25,8 +25,14 @@ export async function registerForPushNotifications(): Promise<string | null> {
 
   if (finalStatus !== 'granted') return null;
 
-  const token = await Notifications.getExpoPushTokenAsync();
-  return token.data;
+  try {
+    const token = await Notifications.getExpoPushTokenAsync();
+    return token.data;
+  } catch (e) {
+    // Push tokens require a development build or production app — not available in Expo Go
+    console.warn('Push token unavailable:', e);
+    return null;
+  }
 }
 
 /** Send a push notification via Expo's push service. */
