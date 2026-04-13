@@ -35,13 +35,15 @@ export default function RecordScreen({ navigation, route }: Props) {
   const idx = (route.params as any)?.complimentIndex ?? 0;
   const original = compliments[idx]?.text ?? '';
 
-  const [text, setText]       = useState(original);
-  const [stage, setStage]     = useState<Stage>('compose');
-  const [recordingTime, setTime] = useState(0);
-  const [audioUri, setAudioUri] = useState<string | null>(null);
-  const [audioB64, setAudioB64] = useState<string | null>(null);
-  const [playing, setPlaying]   = useState(false);
-  const [saving, setSaving]     = useState(false);
+  const [text, setText]         = useState(original);
+  const [savedText, setSavedText] = useState(original);
+  const [textSaved, setTextSaved] = useState(false);
+  const [stage, setStage]       = useState<Stage>('compose');
+  const [recordingTime, setTime]  = useState(0);
+  const [audioUri, setAudioUri]   = useState<string | null>(null);
+  const [audioB64, setAudioB64]   = useState<string | null>(null);
+  const [playing, setPlaying]     = useState(false);
+  const [saving, setSaving]       = useState(false);
 
   // Native refs
   const nativeRecRef = useRef<Audio.Recording | null>(null);
@@ -54,18 +56,25 @@ export default function RecordScreen({ navigation, route }: Props) {
   // ── Load saved text for this compliment ───────────────────────────────────
   useEffect(() => {
     AsyncStorage.getItem(`compliment_text_${idx}`).then(saved => {
-      if (saved) setText(saved);
+      if (saved) { setText(saved); setSavedText(saved); setTextSaved(true); }
     });
   }, [idx]);
 
-  // ── Auto-save text as he edits ────────────────────────────────────────────
   const handleTextChange = (val: string) => {
     setText(val);
-    AsyncStorage.setItem(`compliment_text_${idx}`, val);
+    setTextSaved(false); // mark unsaved when user types
+  };
+
+  const saveText = async () => {
+    await AsyncStorage.setItem(`compliment_text_${idx}`, text);
+    setSavedText(text);
+    setTextSaved(true);
   };
 
   const resetToOriginal = () => {
     setText(original);
+    setSavedText(original);
+    setTextSaved(false);
     AsyncStorage.removeItem(`compliment_text_${idx}`);
   };
 
@@ -224,8 +233,6 @@ export default function RecordScreen({ navigation, route }: Props) {
 
   // ── Render ────────────────────────────────────────────────────────────────
 
-  const isEdited = text !== original;
-
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: BG }]}>
       <View style={styles.header}>
@@ -247,29 +254,45 @@ export default function RecordScreen({ navigation, route }: Props) {
           <View style={styles.card}>
             <View style={styles.labelRow}>
               <Text style={styles.label}>YOUR WORDS</Text>
-              {isEdited && (
+              {text !== original && (
                 <TouchableOpacity onPress={resetToOriginal}>
                   <Text style={styles.resetTxt}>Reset to original</Text>
                 </TouchableOpacity>
               )}
             </View>
+
             <TextInput
-              style={styles.textInput}
+              style={[
+                styles.textInput,
+                stage === 'compose' && styles.textInputEditable,
+              ]}
               value={text}
               onChangeText={handleTextChange}
               multiline
               scrollEnabled={false}
               editable={stage === 'compose'}
+              placeholder="Write your compliment here…"
+              placeholderTextColor="#7a6450"
             />
-            {!isEdited && (
-              <Text style={styles.hint}>
-                This is the original — edit it to make it yours. Changes are saved automatically.
-              </Text>
-            )}
-            {isEdited && (
-              <Text style={[styles.hint, { color: `${ACCENT}80` }]}>
-                ✓ Your version saved
-              </Text>
+
+            {stage === 'compose' && (
+              <View style={styles.saveTextRow}>
+                <Text style={styles.hint}>
+                  {textSaved
+                    ? `✓ Saved — "${savedText.slice(0, 32)}${savedText.length > 32 ? '…' : ''}"`
+                    : 'Edit the text to make it yours, then save before recording.'}
+                </Text>
+                <TouchableOpacity
+                  style={[styles.saveTextBtn, textSaved && { opacity: 0.5 }]}
+                  onPress={saveText}
+                  disabled={textSaved}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.saveTextBtnTxt}>
+                    {textSaved ? '✓ Saved' : 'Save Text'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             )}
           </View>
         )}
@@ -389,8 +412,12 @@ const styles = StyleSheet.create({
   labelRow:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   label:          { color: TEXT_MUTED, fontSize: 11, letterSpacing: 2.5, fontFamily: 'Georgia' },
   resetTxt:       { color: '#b89f84', fontSize: 11, fontFamily: 'Georgia', textDecorationLine: 'underline' },
-  textInput:      { color: TEXT_PRIMARY, fontSize: 17, fontStyle: 'italic', fontFamily: 'Georgia', lineHeight: 28, marginBottom: 12 },
-  hint:           { color: '#7a6450', fontSize: 11, fontFamily: 'Georgia', fontStyle: 'italic' },
+  textInput:         { color: TEXT_PRIMARY, fontSize: 17, fontStyle: 'italic', fontFamily: 'Georgia', lineHeight: 28, marginBottom: 8 },
+  textInputEditable: { borderWidth: 1, borderColor: `${ACCENT}50`, borderRadius: 10, padding: 14, backgroundColor: '#15110d' },
+  saveTextRow:       { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 4 },
+  saveTextBtn:       { backgroundColor: `${ACCENT}cc`, paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8 },
+  saveTextBtnTxt:    { color: '#0f0d0b', fontSize: 12, fontFamily: 'Georgia', fontWeight: 'bold', letterSpacing: 1 },
+  hint:              { color: '#7a6450', fontSize: 11, fontFamily: 'Georgia', fontStyle: 'italic', flex: 1 },
   reviewText:     { color: TEXT_PRIMARY, fontSize: 17, fontStyle: 'italic', fontFamily: 'Georgia', lineHeight: 28, marginTop: 4 },
   centeredSection:{ alignItems: 'center', gap: 16, paddingVertical: 8 },
   micBtn:         { width: 120, height: 120, borderRadius: 60, backgroundColor: `${ACCENT}cc`, alignItems: 'center', justifyContent: 'center', gap: 8 },
