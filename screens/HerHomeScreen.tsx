@@ -65,7 +65,7 @@ export default function HerHomeScreen({ navigation }: Props) {
         await sendPush(
           appState.hisPushToken,
           '♡ She wants to hear from you',
-          'Open Luvuwurds to record a compliment for her.',
+          'Open Luvwurds to record a compliment for her.',
         );
       }
       Alert.alert('Sent ♡', 'He\'ll get a nudge to record something for you.');
@@ -131,7 +131,7 @@ export default function HerHomeScreen({ navigation }: Props) {
       <View style={styles.header}>
         <View>
           <Text style={styles.eyebrow}>Just for you</Text>
-          <Text style={styles.title}>Luvuwurds</Text>
+          <Text style={styles.title}>Luvwurds</Text>
         </View>
         <TouchableOpacity
           style={styles.savedBtn}

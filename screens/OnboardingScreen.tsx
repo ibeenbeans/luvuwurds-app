@@ -19,7 +19,7 @@ export default function OnboardingScreen({ navigation }: Props) {
 
       <View style={styles.hero}>
         <Text style={styles.eyebrow}>Welcome to</Text>
-        <Text style={styles.title}>Luvuwurds</Text>
+        <Text style={styles.title}>Luvwurds</Text>
         <Text style={styles.subtitle}>A private space between two people.</Text>
       </View>
 

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "luvuwurds-app",
-    "slug": "luvuwurds-app",
+    "name": "luvwurds-app",
+    "slug": "luvwurds-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.luvuwurds.app"
+      "bundleIdentifier": "com.luvwurds.app"
     },
     "android": {
       "adaptiveIcon": {

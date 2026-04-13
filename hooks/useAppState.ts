@@ -11,7 +11,7 @@ export interface AppState {
   herPushToken: string | null;
 }
 
-const STORAGE_KEY = 'luvuwurds_app_state';
+const STORAGE_KEY = 'luvwurds_app_state';
 
 const defaultState: AppState = {
   role: null,

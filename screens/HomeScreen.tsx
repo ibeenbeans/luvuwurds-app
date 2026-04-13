@@ -125,7 +125,7 @@ export default function HomeScreen({ navigation }: Props) {
       <View style={styles.header}>
         <View>
           <Text style={styles.headerSub}>INSPIRATION</Text>
-          <Text style={[styles.headerTitle, { color: accent }]}>Luvuwurds</Text>
+          <Text style={[styles.headerTitle, { color: accent }]}>Luvwurds</Text>
         </View>
         <View style={styles.headerRight}>
           {savedCount > 0 && (

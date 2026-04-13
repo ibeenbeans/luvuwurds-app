@@ -55,7 +55,7 @@ export default function HisSetupScreen({ navigation }: Props) {
 
   const handleShare = () => {
     Share.share({
-      message: `I made something for us. Download Luvuwurds and enter this code when it asks: ${code}`,
+      message: `I made something for us. Download Luvwurds and enter this code when it asks: ${code}`,
     });
   };
 
